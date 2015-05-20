@@ -383,39 +383,46 @@ DisplayCodename() {
 #     MAIN
 ###############################################################################
 
-# Check if any prog argument
-if [ -z "$1" ]
+# check first if there's a native lsb_release
+NATIVE_LSB="$(which lsb_release)"
+if [ -f "$NATIVE_LSB" ]
 then
-    ARG_V="y"           # default set to Display LSB Version (not Usage)
+  echo "$($NATIVE_LSB $@)"
 else
-    EnhancedGetopt "$@" # Parse program args
-    if [ -n "$ARG_S" ] && [ -z "$NB_ARG" ]
-    then
-        ARG_V="y"       # set also default for --short when single arg
-    fi
+  # Check if any prog argument
+  if [ -z "$1" ]
+  then
+      ARG_V="y"           # default set to Display LSB Version (not Usage)
+  else
+      EnhancedGetopt "$@" # Parse program args
+      if [ -n "$ARG_S" ] && [ -z "$NB_ARG" ]
+      then
+          ARG_V="y"       # set also default for --short when single arg
+      fi
+  fi
+
+  # Update args to All if requested
+  if [ -n "$ARG_A" ]
+  then
+      [ -z "$ARG_C" ] && ARG_C="y"
+      [ -z "$ARG_D" ] && ARG_D="y"
+      [ -z "$ARG_I" ] && ARG_I="y"
+      [ -z "$ARG_R" ] && ARG_R="y"
+      [ -z "$ARG_V" ] && ARG_V="y"
+  fi
+
+  # Initialization
+  GetLSBInfo
+  GetDistribInfo
+
+  # Display requested infos (order as follow)
+  [ -n "$ARG_V" ] && DisplayVersion
+  [ -n "$ARG_I" ] && DisplayID
+  [ -n "$ARG_D" ] && DisplayDescription
+  [ -n "$ARG_R" ] && DisplayRelease
+  [ -n "$ARG_C" ] && DisplayCodename
+
+  [ -n "$ARG_S" ] && echo "$MSG_RESULT"
 fi
-
-# Update args to All if requested
-if [ -n "$ARG_A" ]
-then
-    [ -z "$ARG_C" ] && ARG_C="y"
-    [ -z "$ARG_D" ] && ARG_D="y"
-    [ -z "$ARG_I" ] && ARG_I="y"
-    [ -z "$ARG_R" ] && ARG_R="y"
-    [ -z "$ARG_V" ] && ARG_V="y"
-fi
-
-# Initialization
-GetLSBInfo
-GetDistribInfo
-
-# Display requested infos (order as follow)
-[ -n "$ARG_V" ] && DisplayVersion
-[ -n "$ARG_I" ] && DisplayID
-[ -n "$ARG_D" ] && DisplayDescription
-[ -n "$ARG_R" ] && DisplayRelease
-[ -n "$ARG_C" ] && DisplayCodename
-
-[ -n "$ARG_S" ] && echo "$MSG_RESULT"
 
 exit $EXIT_STATUS
