@@ -384,7 +384,7 @@ DisplayCodename() {
 ###############################################################################
 
 # check first if there's a native lsb_release
-NATIVE_LSB="$(which lsb_release)"
+NATIVE_LSB="$(which lsb_release 2>/dev/null)"
 if [ -f "$NATIVE_LSB" ]
 then
   echo "$($NATIVE_LSB $@)"
